@@ -17,8 +17,8 @@ async function runBenchmark(url, connections = 10, duration = 20) {
 async function main() {
   // Define test configurations for Node.js and Bun endpoints
   const tests = [
-    { name: 'Node.js CRUD', url: 'http://localhost:3000/items' },
-    { name: 'Bun CRUD', url: 'http://localhost:3001/items' },
+    { name: 'Node.js CRUD', url: 'http://localhost:4000/items' },
+    { name: 'Bun CRUD', url: 'http://localhost:4001/items' },
   ];
 
   const results = [];

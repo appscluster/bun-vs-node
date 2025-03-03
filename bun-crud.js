@@ -12,7 +12,7 @@ db.exec(`
 `);
 
 Bun.serve({
-  port: 3001,
+  port: 4001,
   async fetch(request) {
     const url = new URL(request.url);
     const pathname = url.pathname;
