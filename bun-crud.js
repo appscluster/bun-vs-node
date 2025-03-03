@@ -1,8 +1,9 @@
+// bun-crud.js
 // Bun CRUD app using built-in SQLite and HTTP server
-import { Database } from 'bun:sqlite';
 
 // Initialize SQLite database and create table if it doesn't exist
-const db = new Database('database.db');
+const db = new SQLite("database.db");
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -11,106 +12,118 @@ db.exec(`
   )
 `);
 
-// HTTP server with CRUD endpoints
-const server = Bun.serve({
+// GET /items - Retrieve all items
+// POST /items - Create a new item
+// GET /items/:id - Retrieve a single item by ID
+// PUT /items/:id - Update an existing item
+// DELETE /items/:id - Delete an item
+// Additional endpoints: /items/search, /items/bulk, /items/complex
+
+Bun.serve({
   port: 4001,
-  async fetch(req) {
-    const url = new URL(req.url);
-    const path = url.pathname;
-    const method = req.method;
+  async fetch(request) {
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+    const method = request.method;
 
-    // GET /items - Retrieve all items
-    if (path === '/items' && method === 'GET') {
-      const items = db.query('SELECT * FROM items').all();
-      return new Response(JSON.stringify(items), {
-        headers: { 'Content-Type': 'application/json' }
-      });
+    // Helper function to send JSON responses
+    const jsonResponse = (data, init = {}) =>
+      new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" }, ...init });
+
+    // Route: GET /items
+    if (pathname === "/items" && method === "GET") {
+      const stmt = db.prepare("SELECT * FROM items");
+      const items = stmt.all();
+      return jsonResponse(items);
     }
 
-    // GET /items/:id - Retrieve a single item by ID
-    if (path.match(/^\/items\/\d+$/) && method === 'GET') {
-      const id = path.split('/').pop();
-      const item = db.query('SELECT * FROM items WHERE id = ?').get(id);
-      
-      if (!item) {
-        return new Response(JSON.stringify({ error: 'Item not found' }), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-      
-      return new Response(JSON.stringify(item), {
-        headers: { 'Content-Type': 'application/json' }
-      });
+    // Route: GET /items/:id
+    if (pathname.startsWith("/items/") && method === "GET" && !pathname.includes("search") && !pathname.includes("complex")) {
+      const parts = pathname.split("/");
+      const id = parts[2];
+      const stmt = db.prepare("SELECT * FROM items WHERE id = ?");
+      const item = stmt.get(id);
+      if (item) return jsonResponse(item);
+      else return jsonResponse({ error: "Item not found" }, { status: 404 });
     }
 
-    // POST /items - Create a new item
-    if (path === '/items' && method === 'POST') {
-      const data = await req.json();
-      const { name, description } = data;
-      
-      const stmt = db.prepare('INSERT INTO items (name, description) VALUES (?, ?)');
+    // Route: POST /items
+    if (pathname === "/items" && method === "POST") {
+      const body = await request.json();
+      const { name, description } = body;
+      const stmt = db.prepare("INSERT INTO items (name, description) VALUES (?, ?)");
       const info = stmt.run(name, description);
-      
-      return new Response(JSON.stringify({
-        id: info.lastInsertRowid,
-        name,
-        description
-      }), {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return jsonResponse({ id: info.lastInsertRowid, name, description });
     }
 
-    // PUT /items/:id - Update an existing item
-    if (path.match(/^\/items\/\d+$/) && method === 'PUT') {
-      const id = path.split('/').pop();
-      const data = await req.json();
-      const { name, description } = data;
-      
-      const stmt = db.prepare('UPDATE items SET name = ?, description = ? WHERE id = ?');
+    // Route: PUT /items/:id
+    if (pathname.startsWith("/items/") && method === "PUT") {
+      const parts = pathname.split("/");
+      const id = parts[2];
+      const body = await request.json();
+      const { name, description } = body;
+      const stmt = db.prepare("UPDATE items SET name = ?, description = ? WHERE id = ?");
       const info = stmt.run(name, description, id);
-      
-      if (info.changes === 0) {
-        return new Response(JSON.stringify({ error: 'Item not found' }), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-      
-      return new Response(JSON.stringify({
-        id: parseInt(id),
-        name,
-        description
-      }), {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      if (info.changes > 0) return jsonResponse({ id, name, description });
+      else return jsonResponse({ error: "Item not found" }, { status: 404 });
     }
 
-    // DELETE /items/:id - Delete an item
-    if (path.match(/^\/items\/\d+$/) && method === 'DELETE') {
-      const id = path.split('/').pop();
-      
-      const stmt = db.prepare('DELETE FROM items WHERE id = ?');
+    // Route: DELETE /items/:id
+    if (pathname.startsWith("/items/") && method === "DELETE") {
+      const parts = pathname.split("/");
+      const id = parts[2];
+      const stmt = db.prepare("DELETE FROM items WHERE id = ?");
       const info = stmt.run(id);
-      
-      if (info.changes === 0) {
-        return new Response(JSON.stringify({ error: 'Item not found' }), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-      
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      if (info.changes > 0) return jsonResponse({ success: true });
+      else return jsonResponse({ error: "Item not found" }, { status: 404 });
     }
 
-    // Handle 404 for unknown routes
-    return new Response(JSON.stringify({ error: 'Not found' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    // Route: GET /items/search?term=...
+    if (pathname === "/items/search" && method === "GET") {
+      const term = url.searchParams.get("term") || "";
+      const searchTerm = `%${term}%`;
+      const stmt = db.prepare("SELECT * FROM items WHERE name LIKE ? OR description LIKE ?");
+      const items = stmt.all(searchTerm, searchTerm);
+      return jsonResponse(items);
+    }
+
+    // Route: POST /items/bulk - Bulk insert multiple items
+    if (pathname === "/items/bulk" && method === "POST") {
+      const items = await request.json();
+      if (!Array.isArray(items)) {
+        return jsonResponse({ error: "Expected an array of items" }, { status: 400 });
+      }
+      const stmt = db.prepare("INSERT INTO items (name, description) VALUES (?, ?)");
+      // Execute within a transaction
+      db.exec("BEGIN");
+      try {
+        for (const item of items) {
+          stmt.run(item.name, item.description);
+        }
+        db.exec("COMMIT");
+        return jsonResponse({ success: true, inserted: items.length });
+      } catch (err) {
+        db.exec("ROLLBACK");
+        return jsonResponse({ error: err.message }, { status: 500 });
+      }
+    }
+
+    // Route: GET /items/complex - Perform multiple queries and aggregate results
+    if (pathname === "/items/complex" && method === "GET") {
+      try {
+        const count = db.prepare("SELECT COUNT(*) as total FROM items").get().total;
+        const avgNameLength = db.prepare("SELECT AVG(LENGTH(name)) as avgNameLength FROM items").get().avgNameLength;
+        const topItems = db.prepare("SELECT * FROM items ORDER BY id DESC LIMIT 5").all();
+        return jsonResponse({
+          totalItems: count,
+          avgNameLength: avgNameLength,
+          topItems: topItems
+        });
+      } catch (err) {
+        return jsonResponse({ error: err.message }, { status: 500 });
+      }
+    }
+
+    return new Response("Not Found", { status: 404 });
   }
 });
-
-console.log(`Bun CRUD app listening at http://localhost:${server.port}`);

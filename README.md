@@ -44,7 +44,7 @@ This repository contains:
 node node-crud.js
 ```
 
-The Node.js API will be available at http://localhost:3000
+The Node.js API will be available at http://localhost:4000
 
 ### Bun CRUD API
 
@@ -52,7 +52,7 @@ The Node.js API will be available at http://localhost:3000
 bun bun-crud.js
 ```
 
-The Bun API will be available at http://localhost:3001
+The Bun API will be available at http://localhost:4001
 
 ## API Endpoints
 
