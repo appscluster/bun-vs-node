@@ -1,8 +1,10 @@
 // bun-crud.js
 // Bun CRUD app using built-in SQLite and HTTP server
 
+import { Database } from "bun:sqlite";
+
 // Initialize SQLite database and create table if it doesn't exist
-const db = new SQLite("database.db");
+const db = new Database("database.db");
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS items (
