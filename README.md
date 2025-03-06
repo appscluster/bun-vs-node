@@ -134,7 +134,7 @@ By analyzing these results, we can determine which runtime offers superior perfo
 
 ## Results
 
-![Benchmark Results](/c:/home/bun-vs-node/results.png)
+![Benchmark Results](https://github.com/appscluster/bun-vs-node/blob/main/results.png)
 
 ### Explanation & Comparison:
 
