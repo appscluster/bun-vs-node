@@ -31,11 +31,30 @@ The performance of backend frameworks directly impacts application scalability, 
 To run this project, ensure you have the following installed:
 
 - Node.js (v22.12.0 or later)
+  ```bash
+  # Install Node.js using nvm (recommended)
+  # First install nvm
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+  # or with wget
+  wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+  
+  # Reload shell configuration
+  source ~/.bashrc  # or ~/.zshrc
+  
+  # Install and use Node.js v22.12.0
+  nvm install 22.12.0
+  nvm use 22.12.0
+  
+  # Alternatively, download the installer from:
+  # https://nodejs.org/dist/v22.12.0/
+  ```
+  
 - Bun (latest version)
   ```bash
   # Install Bun
   curl -fsSL https://bun.sh/install | bash
   ```
+  
 - npm, yarn, or Bun as a package manager
 
 ## Installation
@@ -130,7 +149,7 @@ If you have insights or alternative testing methods, please contribute your find
 
 ## Contributing
 
-We welcome contributions! Please read our contribution guidelines before submitting a pull request. The guide includes information on code style, testing requirements, and the pull request process.
+Welcome all contributions!
 
 ## Authors & Acknowledgment
 
