@@ -132,6 +132,32 @@ Key Metrics:
 
 By analyzing these results, we can determine which runtime offers superior performance under stress.
 
+## Results
+
+![Benchmark Results](/c:/home/bun-vs-node/results.png)
+
+### Explanation & Comparison:
+
+#### GET /items:
+- **Node.js**: 17.2 RPS, latency ~570ms (moderate performance, somewhat high latency).
+- **Bun**: 48.1 RPS, latency ~206ms (clearly superior performance, 2.8x throughput improvement).
+
+#### GET /items/search:
+- **Node.js**: Higher throughput (3,037 RPS) but all requests failed (0 successful), indicating a functional issue.
+- **Bun**: Lower throughput (213 RPS) but requests succeeded consistently (latency ~46ms).
+
+#### POST /items/bulk:
+- **Node.js**: 354 RPS, latency ~28ms (good performance).
+- **Bun**: Slightly higher throughput at 424 RPS, latency ~23ms (better performance).
+
+#### GET /items/complex:
+- **Node.js**: Excellent throughput (~2,986 RPS), low latency (~3ms), but all failed responses.
+- **Bun**: Lower throughput (151 RPS), higher latency (65ms), but successful responses.
+
+### Conclusion:
+- **Bun** is reliable, stable, and faster for basic CRUD.
+- **Node.js** is performant but has reliability and functional issues under load.
+
 ## Database
 
 Both implementations use SQLite via better-sqlite3. The database file (database.db) is created automatically when the API is first run. This ensures a consistent data storage backend for the comparison.
