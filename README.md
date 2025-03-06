@@ -1,20 +1,42 @@
 # Bun vs Node.js Performance Comparison
 
-This project compares the performance of Bun and Node.js when running a simple CRUD API application.
+## Purpose
+
+This project aims to provide a comprehensive performance comparison between Bun and Node.js when running a simple CRUD API application. By benchmarking both environments, we seek to understand their efficiency, resource utilization, and scalability under identical conditions.
+
+With the increasing adoption of Bun as a potential alternative to Node.js, it's crucial to evaluate its real-world performance for API-driven applications. The findings from this project can help developers and organizations make informed decisions about whether to adopt Bun in production environments.
 
 ## Overview
 
 This repository contains:
-- A Node.js CRUD API implementation
-- A Bun CRUD API implementation (similar to the Node.js version)
-- Performance benchmarking tools using Autocannon
-- Visualization of the benchmark results
+
+- A Node.js implementation of a CRUD API
+- A Bun implementation of the same CRUD API
+- Performance benchmarking tools utilizing Autocannon
+- Graphical visualization of benchmark results for easy analysis
+
+By running structured performance tests, we can compare key performance metrics such as request throughput and latency. This will help assess how Bun stacks up against Node.js in handling concurrent API requests.
+
+## Why This Matters
+
+The performance of backend frameworks directly impacts application scalability, response times, and resource consumption. By benchmarking Bun against Node.js, we can:
+
+- Identify potential speed and efficiency gains
+- Determine which runtime offers better throughput under heavy load
+- Evaluate response latency and resource utilization
+- Provide data-driven insights for developers considering Bun for production workloads
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (v14 or later)
-- [Bun](https://bun.sh/) (latest version)
-- npm or yarn
+To run this project, ensure you have the following installed:
+
+- Node.js (v22.12.0 or later)
+- Bun (latest version)
+  ```bash
+  # Install Bun
+  curl -fsSL https://bun.sh/install | bash
+  ```
+- npm, yarn, or Bun as a package manager
 
 ## Installation
 
@@ -56,7 +78,7 @@ The Bun API will be available at http://localhost:4001
 
 ## API Endpoints
 
-Both APIs expose the same endpoints:
+Both implementations expose identical RESTful endpoints:
 
 - `GET /items` - Retrieve all items
 - `GET /items/:id` - Retrieve a single item by ID
@@ -66,33 +88,54 @@ Both APIs expose the same endpoints:
 
 ## Running the Benchmarks
 
-Ensure both APIs are running, then execute the benchmark script:
+Once both APIs are running, execute the benchmarking script:
 
 ```bash
 node autocannon-plot.js
 ```
 
-This will:
-1. Run performance tests against both the Node.js and Bun APIs
-2. Generate comparison graphs for:
-   - Requests per second
-   - Average latency
+This script will:
+1. Simulate API traffic using Autocannon
+2. Generate performance comparison graphs displaying:
+   - Requests per second (RPS)
+   - Average response latency
 
-## Understanding the Results
+## Interpreting the Results
 
-The benchmarks test each API with:
+The benchmarks are conducted with the following parameters:
+
 - 10 concurrent connections
 - 20-second duration tests
 
-The results visualize:
-- **Higher RPS (requests per second)** indicates better throughput
-- **Lower latency** indicates better response time
+Key Metrics:
+- Higher RPS (Requests Per Second) → Indicates better API throughput
+- Lower latency → Suggests faster response times and improved efficiency
+
+By analyzing these results, we can determine which runtime offers superior performance under stress.
 
 ## Database
 
-Both implementations use SQLite via better-sqlite3. The database file `database.db` is created automatically when you run either API for the first time.
+Both implementations use SQLite via better-sqlite3. The database file (database.db) is created automatically when the API is first run. This ensures a consistent data storage backend for the comparison.
 
-## Notes
+## Future Improvements & Further Experimentation
 
-- For production use, you may want to configure more robust error handling and validation
-- The benchmark results may vary based on your hardware and system load
+We encourage contributions and feedback to extend this study. Here are some areas for further exploration:
+
+- Test with different database systems (e.g., PostgreSQL, MongoDB, MySQL)
+- Evaluate memory and CPU consumption for each runtime
+- Benchmark under varying workloads (e.g., 100+ concurrent users, long-lived connections)
+- Analyze performance with real-world middleware (authentication, logging, caching)
+
+If you have insights or alternative testing methods, please contribute your findings!
+
+## Contributing
+
+We welcome contributions! Please read our contribution guidelines before submitting a pull request. The guide includes information on code style, testing requirements, and the pull request process.
+
+## Authors & Acknowledgment
+
+Dr. Abdul Hamid - Project Owner - [LinkedIn](https://www.linkedin.com/in/ahceo/)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
